@@ -1,0 +1,177 @@
+
+{% block title %}{% endblock %}
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+.styled-table {
+    border-collapse: collapse;
+    margin: 25px 0;
+    font-size: 0.9em;
+    font-family: sans-serif;
+    min-width: 400px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.15);
+}
+.styled-table thead tr {
+    background-color: #009879;
+    color: #ffffff;
+    text-align: left;
+}
+.styled-table th,
+.styled-table td {
+    padding: 12px 15px;
+}
+.styled-table tbody tr {
+    border-bottom: 1px solid #dddddd;
+}
+
+.styled-table tbody tr:nth-of-type(even) {
+    background-color: #f3f3f3;
+}
+
+.styled-table tbody tr:last-of-type {
+    border-bottom: 2px solid #009879;
+}
+.styled-table tbody tr.active-row {
+    font-weight: bold;
+    color: #009879;
+}
+.topnav {
+  background-color: #333;
+  overflow: hidden;
+}
+.topnav a {
+  float: left;
+  color: #f2f2f2;
+  text-align: center;
+  padding: 14px 16px;
+  text-decoration: none;
+  font-size: 17px;
+}
+/* Change the color of links on hover */
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
+}
+
+/* Add a color to the active/current link */
+.topnav a.active {
+  background-color: #04AA6D;
+  color: white;
+}
+.split {
+    height: 100%;
+    width: 70%;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    overflow-x: hidden;
+    padding-top: 20px;
+  }
+  
+  /* Control the left side */
+  .left {
+    padding-top: 1.5cm;
+    left: 0;
+    background-color:white;
+  }
+  
+  /* Control the right side */
+  .right {
+    padding-top: 0.5cm;
+
+    right: 0;
+    background-color: white;
+  }
+  
+  /* If you want the content centered horizontally and vertically */
+  .centered {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+  }
+  
+  /* Style the image inside the centered container, if needed */
+  .centered img {
+    width: 150px;
+    border-radius: 50%;
+  }
+</style>
+{% block content %}
+<div class="topnav">
+    <a class="active" href="#home">|-----CHAUKASS-----|</a>
+
+</div>
+
+{% if user.is_authenticated %}
+ <h1> Welcome,  {{ user.username }}!</h1>
+
+<table class="styled-table">
+    <thead>
+        <tr>
+            <th>IMEI</th>
+            <th>Message</th>
+            <th>Latitude</th>
+            <th>Longitude</th>
+            <th>Date and Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for data in post %}
+        <tr>
+            <td>{{data.imei}}</td>
+            <td>{{data.msg}}</td>
+            <td>{{data.lat}}</td>
+            <td>{{data.long}}</td>
+            <td>{{data.samay}}</td>
+        </tr>
+        {% endfor %}
+
+        <!-- and so on... -->
+    </tbody>
+</table>
+<div class="split right">
+    <a href="{% url 'logout' %}"><i href="{% url 'logout' %}" class="fa fa-sign-out" style="font-size:48px;color:red;float: right;"></i></a>
+
+    <h4 style="text-align: center;font-weight: bold;font-size: 30px;">Device Location</h4>
+    <div id="map" style="width:100%;height:100%;float: right;" ></div>
+    <script>
+
+function myMap() {
+    var locations = {{ jdata|safe }};
+
+var mapCanvas = document.getElementById("map");
+var myCenter = new google.maps.LatLng(locations[0]['lat'], locations[0]['long']);                   // Uses the lat/lng permission passed by Django view.
+var mapOptions = {
+  center: myCenter,
+  zoom: 5
+};
+
+
+var marker,i;
+var map = new google.maps.Map(mapCanvas, mapOptions);
+
+for (i = 0; i < locations.length; i++) {
+                  marker = new google.maps.Marker({
+                    position: new google.maps.LatLng(locations[i]['lat'], locations[i]['long'])
+                  ,  animation: google.maps.Animation.DROP,
+                  map : map
+});
+var infowindow = new google.maps.InfoWindow({                             // Info window above location marker that shows message.
+  content: locations[i]['samay']
+});
+infowindow.open(map,marker);
+}
+marker.setMap(map);
+
+}
+    </script>
+  
+    <script  type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key={{API_KEY}}&callback=myMap"></script>
+  </div>
+  {% else %}
+  <p>You are not logged in</p>
+  <a href="{% url 'login' %}">Log In</a>
+{% endif %}
+{% endblock %}
