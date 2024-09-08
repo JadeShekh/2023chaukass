@@ -19,7 +19,8 @@ def submitdata(request):
         MyLoginForm.lat=request.POST['lat']
         MyLoginForm.long=request.POST['long']
         MyLoginForm.samay=datetime.now()"""
-        MyLoginForm.imei=request.POST['imei']
+	print(request.POST['iridium_longitude']+binascii.unhexlify(request.POST['data'])
+	MyLoginForm.imei=request.POST['imei']
         MyLoginForm.msg=binascii.unhexlify(request.POST['data'])
         MyLoginForm.lat=request.POST['iridium_longitude']
         MyLoginForm.long=request.POST['iridium_latitude']
